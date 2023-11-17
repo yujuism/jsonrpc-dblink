@@ -61,7 +61,7 @@ export class CommandService {
           request = await this.sequelize.models[id][method](data, {where, ...options});
         }
 
-        if (index) {
+        if (process.env.ELASTICSEARCH_URL && index) {
           const elasticsearchData: any = {
             ...request.dataValues,
           };

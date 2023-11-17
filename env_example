@@ -1,5 +1,5 @@
-LOG_MODE=logstash
-NODE_ENV=staging
+LOG_MODE=
+NODE_ENV=
 
 PORT=
 DB_USER=

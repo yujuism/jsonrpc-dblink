@@ -9,7 +9,7 @@ import {LoggerInterceptor} from './utility/interceptor/logger.interceptor';
 
 async function bootstrap() {
   try {
-    const PORT = process.env.PORT;
+    const PORT = process.env.PORT || 3000;
     const app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
       new FastifyAdapter({

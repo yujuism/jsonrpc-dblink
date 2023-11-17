@@ -3,7 +3,11 @@ import {CommandService} from './command.service';
 import {CommandHandler} from './command.handler';
 import {ConfigModule} from '@nestjs/config';
 import {JsonRpcModule} from 'asc-rpc';
-import {ElasticSearchModule} from 'src/elasticsearch/elasticsearch.modul';
+import {ElasticSearchModule} from 'src/elasticsearch/elasticsearch.module';
+
+function getElasticsearchModule() {
+  return process.env.ELASTICSEARCH_URL ? [ElasticSearchModule] : [];
+}
 
 @Module({
   imports: [
@@ -11,7 +15,7 @@ import {ElasticSearchModule} from 'src/elasticsearch/elasticsearch.modul';
     JsonRpcModule.forRoot({
       path: '/rpc', // path to RPC
     }),
-    ElasticSearchModule,
+    ...getElasticsearchModule(),
   ],
   providers: [CommandService, CommandHandler],
 })

@@ -6,7 +6,7 @@ import {ScheduleModule} from '@nestjs/schedule';
 import {CommandModule} from './command/command.module';
 import appConfig from './app.config';
 import {SequelizeModule} from '@nestjs/sequelize';
-import {ElasticSearchModule} from './elasticsearch/elasticsearch.modul';
+import {ElasticSearchModule} from './elasticsearch/elasticsearch.module';
 import * as redisStore from 'cache-manager-ioredis';
 import {RpcMiddleware} from './utility/middleware/Rpc.midleware';
 import {CacheModule} from '@nestjs/cache-manager';
@@ -30,6 +30,9 @@ function getHandlerModules() {
   if (process.env.QUERY_HANDLER !== 'false') modules.push(QueryModule);
   return modules;
 }
+function getElasticsearchModule() {
+  return process.env.ELASTICSEARCH_URL ? [ElasticSearchModule] : [];
+}
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -51,7 +54,7 @@ function getHandlerModules() {
       },
       inject: [ConfigService],
     }),
-    ElasticSearchModule,
+    ...getElasticsearchModule(),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
