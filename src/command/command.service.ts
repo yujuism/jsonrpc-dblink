@@ -46,7 +46,14 @@ export class CommandService {
         const where = payload.where;
 
         let request: any;
-        if (['create'].includes(method)) request = await this.sequelize.models[id][method](data, options);
+        if (['sync'].includes(method)) {
+          if (id === 'All') {
+            request = await this.sequelize.sync(payload);
+          } else {
+            request = await this.sequelize.models[id].sync(payload);
+          }
+        } else if (['create', 'bulkCreate'].includes(method))
+          request = await this.sequelize.models[id][method](data, options);
         else if (['restore'].includes(method)) {
           request = await this.sequelize.models[id][method]({where, ...options});
         } else if (['removeCache'].includes(method)) {
@@ -68,6 +75,8 @@ export class CommandService {
           delete elasticsearchData.id;
           if (['create'].includes(method)) {
             await this.esService.insert(request.dataValues.id, elasticsearchData, index);
+          } else if (['bulkCreate'].includes(method)) {
+            await this.esService.bulkInsert(request.dataValues.id, elasticsearchData, index);
           } else {
             if (request[0] > 0)
               await Promise.all(

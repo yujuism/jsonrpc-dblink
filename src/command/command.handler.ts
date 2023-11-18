@@ -31,8 +31,8 @@ export class CommandHandler {
   public async restore(@RpcPayload() payload: any, @RpcId() id: string) {
     return await this.commandService.method('restore', id, payload);
   }
-  @RpcMethodHandler('migrate')
+  @RpcMethodHandler('sync')
   public async migrate(@RpcPayload() payload: any, @RpcId() id: string) {
-    return;
+    return await this.commandService.method('sync', id, payload);
   }
 }

@@ -4,10 +4,12 @@ import {Sequelize} from 'sequelize-typescript';
 import {replaceModels} from '../utility/globals/models';
 import {Cache} from 'cache-manager';
 import {CACHE_MANAGER} from '@nestjs/cache-manager';
+import {ConfigService} from '@nestjs/config';
 @Injectable()
 export class QueryService {
   constructor(
     private sequelize: Sequelize,
+    private config: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -28,7 +30,7 @@ export class QueryService {
         if (!Object.keys(this.sequelize.models).includes(id)) throw {message: `model ${id} does not exists`};
         const newPayload = replaceModels(payload, this.sequelize.models);
         const request = await this.sequelize.models[id][method](newPayload);
-        const ttl = 3600 * 24;
+        const ttl = this.config.get('cacheTtl');
         this.cacheManager.set(logger, request, ttl);
         return {
           result: request,

@@ -45,4 +45,17 @@ export class SearchService {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  async bulkInsert(id: string, body: any[], index: string) {
+    const data = body.map((doc) => [{index: {_index: index}}, id, doc]);
+
+    try {
+      const result = await this.esService.bulk({
+        index,
+        body: data,
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

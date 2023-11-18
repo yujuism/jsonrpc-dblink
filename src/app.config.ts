@@ -16,4 +16,5 @@ export default () => ({
   dbmodule: process.env.DB_MODULE,
   commandMethodOverride: process.env.COMMAND_METHOD_OVERRIDE,
   queryMethodOverride: process.env.QUERY_METHOD_OVERRIDE,
+  cacheTtl: process.env.CACHE_TTL || 60 * 30,
 });
