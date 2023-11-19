@@ -8,7 +8,7 @@ import {SearchService} from './elasticsearch.service';
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        node: configService.get('elasticsearchUrl'),
+        node: configService.get('elasticsearchUrl') ?? 'http://elasticsearch',
         auth: {
           username: configService.get('elasticsearchUsername'),
           password: configService.get('elasticsearchPassword'),

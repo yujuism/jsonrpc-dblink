@@ -30,9 +30,7 @@ function getHandlerModules() {
   if (process.env.QUERY_HANDLER !== 'false') modules.push(QueryModule);
   return modules;
 }
-function getElasticsearchModule() {
-  return process.env.ELASTICSEARCH_URL ? [ElasticSearchModule] : [];
-}
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,7 +52,7 @@ function getElasticsearchModule() {
       },
       inject: [ConfigService],
     }),
-    ...getElasticsearchModule(),
+    ElasticSearchModule,
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
