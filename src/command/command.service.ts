@@ -1,16 +1,25 @@
 import {JSON_RPC_ERROR_CODES, RpcException} from 'asc-rpc';
-import {Inject, Injectable} from '@nestjs/common';
+import {Inject, Injectable, OnModuleInit} from '@nestjs/common';
 import {Sequelize} from 'sequelize-typescript';
 import {SearchService} from '../elasticsearch/elasticsearch.service';
 import {Cache} from 'cache-manager';
 import {CACHE_MANAGER} from '@nestjs/cache-manager';
+import {ConfigService} from '@nestjs/config';
 @Injectable()
-export class CommandService {
+export class CommandService implements OnModuleInit {
   constructor(
     private sequelize: Sequelize,
     private esService: SearchService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private config: ConfigService,
   ) {}
+  async onModuleInit() {
+    try {
+      await this.createExtensionIfNotExists();
+    } catch (error) {
+      // Handle errors if any during initialization
+    }
+  }
   async method(method: string, id: string, payload: any) {
     // this.sequelize.options.logging = (sql, timing) => {
     //   console.log({sql});
@@ -26,14 +35,14 @@ export class CommandService {
         if (!keys.includes('where')) throw {message: `where property is required`};
         if (Object.keys(payload.where).length === 0) throw {message: `where can't be an empty object`};
       }
-      if (['create'].includes(method)) {
-        if (!dataKeys.includes('created_by')) throw {message: `Field created_by is required`};
+      if (this.config.get('createdBy') && ['create'].includes(method) && !dataKeys.includes('created_by')) {
+        throw {message: `Field created_by is required`};
       }
-      if (['update'].includes(method)) {
-        if (!dataKeys.includes('updated_by')) throw {message: `Field updated_by is required`};
+      if (this.config.get('updatedBy') && ['update'].includes(method) && !dataKeys.includes('updated_by')) {
+        throw {message: `Field updated_by is required`};
       }
-      if (['destroy'].includes(method)) {
-        if (!dataKeys.includes('deleted_by')) throw {message: `Field deleted_by is required`};
+      if (this.config.get('deletedBy') && ['destroy'].includes(method) && !dataKeys.includes('deleted_by')) {
+        throw {message: `Field deleted_by is required`};
       }
       const transaction = await this.sequelize.transaction();
 
@@ -48,9 +57,11 @@ export class CommandService {
         let request: any;
         if (['sync'].includes(method)) {
           if (id === 'All') {
-            request = await this.sequelize.sync(payload);
+            this.sequelize.sync(payload);
+          } else if (this.sequelize.models[id]) {
+            this.sequelize.models[id].sync(payload);
           } else {
-            request = await this.sequelize.models[id].sync(payload);
+            throw {message: `Model or id ${id} does not exists`};
           }
         } else if (['create', 'bulkCreate'].includes(method))
           request = await this.sequelize.models[id][method](data, options);
@@ -106,6 +117,28 @@ export class CommandService {
     } catch (error) {
       // logger.error('error_method_service', error);
       throw new RpcException(error.message, JSON_RPC_ERROR_CODES.INVALID_REQUEST);
+    }
+  }
+  async createExtensionIfNotExists(): Promise<void> {
+    try {
+      const extensionString = this.config.get('dbExtensions');
+      const extensions: string[] = extensionString ? extensionString.split(',') : [];
+      extensions.map(async (extension) => {
+        const extensionName = extension.trim();
+        const [results] = await this.sequelize.query(`SELECT * FROM pg_extension WHERE extname='${extensionName}';`);
+
+        // If the extension doesn't exist, create it
+        if (results.length === 0) {
+          await this.sequelize.query(`CREATE EXTENSION "${extensionName}";`);
+          // console.log(`${extensionName} extension created`);
+        } else {
+          // console.log(`${extensionName} extension already exists`);
+        }
+      });
+      // Check if the extension exists
+    } catch (error) {
+      console.error(`Error creating/checking extension:`, error);
+      throw error;
     }
   }
 }

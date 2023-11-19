@@ -17,4 +17,8 @@ export default () => ({
   commandMethodOverride: process.env.COMMAND_METHOD_OVERRIDE,
   queryMethodOverride: process.env.QUERY_METHOD_OVERRIDE,
   cacheTtl: process.env.CACHE_TTL || 60 * 30,
+  dbExtensions: process.env.DB_EXTENSIONS,
+  createdBy: process.env.CREATED_BY,
+  updatedBy: process.env.UPDATED_BY,
+  deletedBy: process.env.DELETED_BY,
 });
