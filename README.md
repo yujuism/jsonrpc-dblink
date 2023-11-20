@@ -23,6 +23,11 @@ Here is an example of the model usage with Sequelize and TypeScript:
 
 #### Container Parameters
 
+Pull the image
+```shell
+docker pull yujuism/jsonrpc-dblink
+```
+
 Run the container
 
 ```shell
