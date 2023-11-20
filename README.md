@@ -12,6 +12,13 @@ In order to run this container you'll need docker installed.
 - [OS X](https://docs.docker.com/mac/started/)
 - [Linux](https://docs.docker.com/linux/started/)
 
+To run this container, you need to supply your own Node.js package model using Sequelize and specify your package name within the environment variable `DB_MODULE`.
+
+Here is an example of the model usage with Sequelize and TypeScript:
+
+- **Example Repository:** [Model Example with Sequelize and TypeScript](https://github.com/yujuism/model-example-dblink)
+- **NPM Package:** [model-example-dblink](https://www.npmjs.com/package/model-example-dblink)
+
 ### Installation
 
 #### Container Parameters
