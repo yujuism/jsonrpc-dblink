@@ -25,7 +25,7 @@ Here is an example of the model usage with Sequelize and TypeScript:
 
 Pull the image
 ```shell
-docker pull yujuism/jsonrpc-dblink
+docker pull yujuism/jsonrpc-dblink:latest
 ```
 
 Run the container
@@ -44,7 +44,7 @@ docker run \
   -e DB_MODULE=[database_package_module] \
   -p [external_port]:3000 \
   -d \
-  jsonrpc-dblink:latest
+  yujuism/jsonrpc-dblink:latest
 ```
 
 Docker compose example
