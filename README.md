@@ -131,7 +131,7 @@ Below is the list of methods that can be utilized. For further details on how to
 
 #### Conversions
 
-- Initial `model` will be expressed in field `id`
+- Initial `model` will be expressed by field `id`
 - `model` will be expressed by string instead of object
 
 ```javascript
