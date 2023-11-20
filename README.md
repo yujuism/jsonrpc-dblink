@@ -12,7 +12,7 @@ In order to run this container you'll need docker installed.
 - [OS X](https://docs.docker.com/mac/started/)
 - [Linux](https://docs.docker.com/linux/started/)
 
-### Usage
+### Installation
 
 #### Container Parameters
 
@@ -119,9 +119,269 @@ networks:
 ## Built With
 
 - @nestjs/core v10.2.5
-- jsonrpc 2.0
+- nestjs-json-rpc v4.4.0
 - sequelize v6.35.0
 - sequelize-typescript v2.1.5
+
+## Usage
+
+### Methods
+
+Below is the list of methods that can be utilized. For further details on how to use these queries, please refer to the [Sequelize documentation](https://sequelize.org/docs/v6/core-concepts/model-querying-basics/) page.
+
+#### Conversions
+
+- Initial `model` will be expressed in field `id`
+- `model` will be expressed by string instead of object
+
+```javascript
+{
+  model: MyModel;
+}
+```
+
+```json
+{
+  "model": "MyModel"
+}
+```
+
+- `Op` will be expressed by string instead of object
+
+```javascript
+{
+  [Op.in]: [1,2,3,4]
+}
+```
+
+```json
+{
+  "Op.in": [1, 2, 3, 4]
+}
+```
+
+#### Commands
+
+- `command.sync`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.sync",
+  "id": "All",
+  "params": {
+    "alter": true
+  }
+}
+```
+
+- `command.create`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.bulkCreate",
+  "id": "Employee",
+  "params": {
+    "data": {
+      "name": "Alice",
+      "email": "alice@example.com",
+      "department_id": "687d4262-cccf-4d7d-a06d-31034777fa03",
+      "code": "EMP001"
+    }
+  }
+}
+```
+
+- `command.createBulk`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.bulkCreate",
+  "id": "Employee",
+  "params": {
+    "data": [
+      {
+        "name": "Alice",
+        "email": "alice@example.com",
+        "department_id": "687d4262-cccf-4d7d-a06d-31034777fa03",
+        "code": "EMP001"
+      },
+      {
+        "name": "Bob",
+        "email": "bob@example.com",
+        "department_id": "cf17582b-9d0c-48df-ad3b-d22ee1bd0c5d",
+        "code": "EMP002"
+      },
+      {
+        "name": "Charlie",
+        "email": "charlie@example.com",
+        "department_id": "687d4262-cccf-4d7d-a06d-31034777fa03",
+        "code": "EMP003"
+      }
+    ]
+  }
+}
+```
+
+- `command.update`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.update",
+  "id": "Employee",
+  "params": {
+    "data": {
+      "name": "Alice Lastname",
+      "email": "new_email@example.com"
+    },
+    "where": {
+      "id:": "8d1803d9-23cb-4673-bd24-bcd8d02c147b"
+    }
+  }
+}
+```
+
+- `command.destroy`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.destroy",
+  "id": "Employee",
+  "params": {
+    "where": {
+      "id:": "8d1803d9-23cb-4673-bd24-bcd8d02c147b"
+    }
+  }
+}
+```
+
+- `command.removeCache`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.destroy",
+  "id": "Employee"
+}
+```
+
+- `command.restore`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.restore",
+  "id": "Employee",
+  "params": {
+    "where": {
+      "id:": "8d1803d9-23cb-4673-bd24-bcd8d02c147b"
+    }
+  }
+}
+```
+
+#### Queries
+
+- `query.findOne`
+- `query.findAll`
+- `query.findAndCountAll`
+
+#### `Request`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "query.findAll",
+  "id": "Employee",
+  "params": {
+    "attributes": ["code", "name", "email"],
+    "include": [
+      {
+        "model": "Task",
+        "attributes": ["name"],
+        "include": [
+          {
+            "model": "Project",
+            "attributes": ["name"]
+          }
+        ]
+      },
+      {
+        "model": "Department",
+        "attributes": ["name"]
+      }
+    ]
+  }
+}
+```
+
+#### `Response`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "query.findAll",
+  "id": "Employee",
+  "result": {
+    "success": true,
+    "data": [
+      {
+        "code": "EMP001",
+        "name": "Alice",
+        "email": "alice@example.com",
+        "Task": [
+          {
+            "name": "Campaign Strategy",
+            "Project": {
+              "name": "Ad Campaign"
+            }
+          }
+        ],
+        "Department": {
+          "name": "Sales"
+        }
+      },
+      {
+        "code": "EMP002",
+        "name": "Bob",
+        "email": "bob@example.com",
+        "Task": [
+          {
+            "name": "Design Prototypes",
+            "Project": {
+              "name": "Product Launch"
+            }
+          }
+        ],
+        "Department": {
+          "name": "Marketing"
+        }
+      },
+      {
+        "code": "EMP003",
+        "name": "Charlie",
+        "email": "charlie@example.com",
+        "Task": [
+          {
+            "name": "Market Research",
+            "Project": {
+              "name": "Ad Campaign"
+            }
+          }
+        ],
+        "Department": {
+          "name": "Sales"
+        }
+      }
+    ],
+    "code": 200
+  }
+}
+```
 
 ## Find Us
 
