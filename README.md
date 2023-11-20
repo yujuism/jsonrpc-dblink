@@ -1,4 +1,4 @@
-# Docker Container Name
+# jsonrpc-dblink
 
 An optimized Docker container designed for seamless execution of Sequelize, enabling swift and efficient database operations within Node.js environments.
 
