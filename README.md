@@ -1,73 +1,139 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# Docker Container Name
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+An optimized Docker container designed for seamless execution of Sequelize, enabling swift and efficient database operations within Node.js environments.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Getting Started
 
-## Description
+### Prerequisities
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+In order to run this container you'll need docker installed.
 
-## Installation
+- [Windows](https://docs.docker.com/windows/started)
+- [OS X](https://docs.docker.com/mac/started/)
+- [Linux](https://docs.docker.com/linux/started/)
 
-```bash
-$ npm install
+### Usage
+
+#### Container Parameters
+
+Run the container
+
+```shell
+docker run \
+  -e API_KEY=[API_KEY_FOR_AUTH] \
+  -e DB_USER=[db_user] \
+  -e DB_PASSWORD=[db_password] \
+  -e DB_NAME=[db_name] \
+  -e DB_HOST=[db_bost] \
+  -e DB_PORT=[db_port] \
+  -e REDIS_STORE=[redis_host] \
+  -e REDIS_PORT=[redis_port] \
+  -e REDIS_PASSWORD=[redis_password] \
+  -e DB_MODULE=[database_package_module] \
+  -p [external_port]:3000 \
+  -d \
+  jsonrpc-dblink:latest
 ```
 
-## Running the app
+Docker compose example
 
-```bash
-# development
-$ npm run start
+```yaml
+version: '3'
+services:
+  - redis:
+    container_name: redis
+    image: redis:7.0.4-alpine
+    restart: always
+    ports:
+      - ${RD_PORT}:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${RD_PASSWORD}
+    volumes:
+      - ./cache:/data
+    networks:
+      - dblink-net
 
-# watch mode
-$ npm run start:dev
+  postgres:
+    container_name: postgres
+    image: postgres:14.5-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    networks:
+      - dblink-net
 
-# production mode
-$ npm run start:prod
+  dblink:
+    container_name: dblink
+    image: yujuism/jsonrpc-dblink:latest
+    ports:
+      - '3002:3000'
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - API_KEY=${API_KEY}
+      - REDIS_STORE=${REDIS_STORE}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DB_MODULE=${DB_MODULE}
+      - DB_EXTENSIONS=${DB_EXTENSIONS}
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - dblink-net
+
+networks:
+  dblink-net:
 ```
 
-## Test
+#### Environment Variables
 
-```bash
-# unit tests
-$ npm run test
+- `PORT` - Custom internal port
+- `API_KEY` - API Key for jsonrpc-dblink
+- `ELASTICSEARCH_URL` - Elasticsearch URL
+- `ELASTICSEARCH_USERNAME` - Elasticsearch Username
+- `ELASTICSEARCH_PASSWORD` - Elasticsearch Password
+- `REDIS_STORE` - Redis hostname
+- `REDIS_PORT` - Redis port
+- `REDIS_PASSWORD` - Redis password
+- `DB_USER` - Database user
+- `DB_PASSWORD` - Database password
+- `DB_NAME` - Database name
+- `DB_HOST` - Database host
+- `DB_PORT` - Database port
+- `DB_MODULE` - Database node package module
+- `DB_EXTENSIONS` - Database extension (e.g. : uuid-ossp,other-ext,another-ext)
+- `COMMAND_HANDLER` - enable/disable command handler ,default:true)
+- `QUERY_HANDLER` - enable/disable query handler ,default:true)
+- `COMMAND_METHOD_OVERRIDE` - default: "command.[method]"
+- `QUERY_METHOD_OVERRIDE` - default: "query.[method]"
 
-# e2e tests
-$ npm run test:e2e
+## Built With
 
-# test coverage
-$ npm run test:cov
-```
+- @nestjs/core v10.2.5
+- jsonrpc 2.0
+- sequelize v6.35.0
+- sequelize-typescript v2.1.5
 
-## Support
+## Find Us
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- [GitHub](https://github.com/yujuism/jsonrpc-dblink)
 
-## Stay in touch
+## Authors
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **yujuism** - _Initial work_ - [yujuism](https://github.com/yujuism)
+
+See also the list of [contributors](https://github.com/yujuism/jsonrpc-dblink/contributors) who
+participated in this project.
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
