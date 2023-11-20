@@ -7,13 +7,16 @@ import {SearchService} from './elasticsearch.service';
   imports: [
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        node: configService.get('elasticsearchUrl') ?? 'http://elasticsearch',
-        auth: {
-          username: configService.get('elasticsearchUsername'),
-          password: configService.get('elasticsearchPassword'),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const url = configService.get('elasticsearchUrl');
+        return {
+          node: url ? url : 'http://elasticsearch',
+          auth: {
+            username: configService.get('elasticsearchUsername'),
+            password: configService.get('elasticsearchPassword'),
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],
