@@ -205,7 +205,7 @@ Below is the list of methods that can be utilized. For further details on how to
 }
 ```
 
-- `command.createBulk`
+- `command.bulkCreate`
 
 ```json
 {
