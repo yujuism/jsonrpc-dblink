@@ -23,6 +23,11 @@ Here is an example of the model usage with Sequelize and TypeScript:
 
 #### Container Parameters
 
+Pull the image
+```shell
+docker pull yujuism/jsonrpc-dblink:latest
+```
+
 Run the container
 
 ```shell
@@ -39,7 +44,7 @@ docker run \
   -e DB_MODULE=[database_package_module] \
   -p [external_port]:3000 \
   -d \
-  jsonrpc-dblink:latest
+  yujuism/jsonrpc-dblink:latest
 ```
 
 Docker compose example
@@ -200,7 +205,7 @@ Below is the list of methods that can be utilized. For further details on how to
 }
 ```
 
-- `command.createBulk`
+- `command.bulkCreate`
 
 ```json
 {
