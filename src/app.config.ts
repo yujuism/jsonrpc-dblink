@@ -21,4 +21,9 @@ export default () => ({
   createdBy: process.env.CREATED_BY,
   updatedBy: process.env.UPDATED_BY,
   deletedBy: process.env.DELETED_BY,
+  sshPublic: process.env.SSH_PUBLIC,
+  sshPrivate: process.env.SSH_PRIVATE,
+  gitUrl: process.env.GIT_URL,
+  gitHost: process.env.GIT_HOST,
+  gitPort: process.env.GIT_PORT,
 });

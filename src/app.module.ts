@@ -15,6 +15,10 @@ import {NestModule} from '@nestjs/common/interfaces/modules/nest-module.interfac
 import {QueryModule} from './query/query.module';
 import * as resolve from 'resolve';
 import * as npm from 'npm-programmatic';
+import * as fs from 'fs';
+import {execSync} from 'child_process';
+import * as os from 'os';
+import * as path from 'path';
 
 function isModuleInstalled(moduleName: string): boolean {
   try {
@@ -57,8 +61,25 @@ function getHandlerModules() {
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const moduleName = configService.get('dbmodule');
-        if (!isModuleInstalled(moduleName)) {
-          await npm.install(moduleName, {
+        let gitUrl = configService.get('gitUrl');
+        if (gitUrl) gitUrl = 'git+' + gitUrl;
+        const sshPublicBase64 = configService.get('sshPublic');
+        const sshPrivateBase64 = configService.get('sshPrivate');
+        const gitHost = configService.get('gitHost');
+        const gitPort = configService.get('gitPort') || '22';
+
+        if (gitUrl && sshPublicBase64 && sshPrivateBase64 && gitHost) {
+          const sshDir = path.join(os.homedir(), '.ssh');
+          if (!fs.existsSync(sshDir)) fs.mkdirSync(sshDir);
+
+          fs.writeFileSync(path.join(sshDir, `id_ed25519.pub`), Buffer.from(sshPublicBase64, 'base64'));
+          fs.writeFileSync(path.join(sshDir, `id_ed25519`), Buffer.from(sshPrivateBase64, 'base64'));
+          fs.chmodSync(path.join(sshDir, `id_ed25519`), '600');
+          execSync(`ssh-keyscan -p ${gitPort} ${gitHost} >> ${path.join(sshDir, `known_hosts`)}`);
+        }
+        const moduleToInstall = gitUrl ? gitUrl : moduleName;
+        if (!isModuleInstalled(moduleToInstall)) {
+          await npm.install(moduleToInstall, {
             // save: true,
             cwd: process.cwd(),
             loglevel: 'verbose',
