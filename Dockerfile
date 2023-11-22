@@ -1,6 +1,8 @@
 # Base image
 FROM node:18-alpine
 
+RUN apk update && apk add git
+
 ENV LOG_MODE=${LOG_MODE}
 ENV NODE_ENV=${NODE_ENV}
 ENV PORT=${PORT}
