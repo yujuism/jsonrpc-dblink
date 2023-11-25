@@ -72,11 +72,15 @@ export class CommandService implements OnModuleInit {
           // console.log(util.inspect(cache, false, null, true));
         } else {
           options.returning = true;
+
           if (['destroy'].includes(method)) {
-            method = 'update';
-            data.deleted_at = new Date();
+            if (dataKeys && dataKeys.includes('deleted_by')) {
+              data.deleted_at = new Date();
+              request = await this.sequelize.models[id][method](data, {where, ...options});
+            } else {
+              request = await this.sequelize.models[id][method]({where, ...options});
+            }
           }
-          request = await this.sequelize.models[id][method](data, {where, ...options});
         }
 
         if (process.env.ELASTICSEARCH_URL && index) {
@@ -110,6 +114,7 @@ export class CommandService implements OnModuleInit {
           result: request,
         };
       } catch (err) {
+        console.log(err);
         // logger.error('rollback_transaction', err);
         transaction.rollback();
         throw {message: err};
