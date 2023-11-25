@@ -78,7 +78,7 @@ function getHandlerModules() {
           execSync(`ssh-keyscan -p ${gitPort} ${gitHost} >> ${path.join(sshDir, `known_hosts`)}`);
         }
         const moduleToInstall = gitUrl ? gitUrl : moduleName;
-        if (!isModuleInstalled(moduleName) && !['staging', 'production'].includes(configService.get('nodeEnv'))) {
+        if (!isModuleInstalled(moduleName) || ['staging', 'production'].includes(configService.get('nodeEnv'))) {
           await npm.install(moduleToInstall, {
             // save: true,
             cwd: process.cwd(),
