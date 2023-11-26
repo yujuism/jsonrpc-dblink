@@ -24,6 +24,7 @@ Here is an example of the model usage with Sequelize and TypeScript:
 #### Container Parameters
 
 Pull the image
+
 ```shell
 docker pull yujuism/jsonrpc-dblink:latest
 ```
@@ -96,6 +97,10 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - DB_MODULE=${DB_MODULE}
       - DB_EXTENSIONS=${DB_EXTENSIONS}
+      - GIT_HOST=${GIT_HOST}
+      - GIT_PORT=${GIT_PORT}
+      - SSH_PUBLIC=${SSH_PUBLIC}
+      - SSH_PRIVATE=${SSH_PRIVATE}
     depends_on:
       - redis
       - postgres
@@ -122,11 +127,15 @@ networks:
 - `DB_HOST` - Database host
 - `DB_PORT` - Database port
 - `DB_MODULE` - Database node package module
+- `GIT_HOST` - Git URL for package from repository
+- `GIT_PORT` - Git port (other than default port 22)
+- `SSH_PUBLIC` - SSH base64 encrypted id_rsa.pub or id_ed25529.pub for private repository
+- `SSH_PRIVATE` SSH base64 encrypted id_rsa or id_ed25529 for private repository
 - `DB_EXTENSIONS` - Database extension (e.g. : uuid-ossp,other-ext,another-ext)
-- `COMMAND_HANDLER` - enable/disable command handler ,default:true)
-- `QUERY_HANDLER` - enable/disable query handler ,default:true)
-- `COMMAND_METHOD_OVERRIDE` - default: "command.[method]"
-- `QUERY_METHOD_OVERRIDE` - default: "query.[method]"
+- `COMMAND_HANDLER` - enable/disable command handler ,default:true
+- `QUERY_HANDLER` - enable/disable query handler ,default:true
+- `COMMAND_METHOD_OVERRIDE` - default: `command.[method]`
+- `QUERY_METHOD_OVERRIDE` - default: `query.[method]`
 
 ## Built With
 
