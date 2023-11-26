@@ -80,6 +80,8 @@ export class CommandService implements OnModuleInit {
             } else {
               request = await this.sequelize.models[id][method]({where, ...options});
             }
+          } else {
+            request = await this.sequelize.models[id][method](data, {where, ...options});
           }
         }
 
