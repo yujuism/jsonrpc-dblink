@@ -26,7 +26,8 @@ export class QueryService {
           result: log,
         };
       } else {
-        if (!Object.keys(payload).includes('attributes')) throw {message: `attributes property for ${id} is required`};
+        if (!Object.keys(payload).includes('attributes') && method !== 'count')
+          throw {message: `attributes property for ${id} is required`};
         if (!Object.keys(this.sequelize.models).includes(id)) throw {message: `model ${id} does not exists`};
         const newPayload = replaceModels(payload, this.sequelize.models);
         const request = await this.sequelize.models[id][method](newPayload);

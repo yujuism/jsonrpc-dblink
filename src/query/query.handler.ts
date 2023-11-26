@@ -19,4 +19,8 @@ export class QueryHandler {
   public async findOne(@RpcPayload() payload: any, @RpcId() id: string) {
     return await this.queryService.find('findOne', id, payload);
   }
+  @RpcMethodHandler('count')
+  public async count(@RpcPayload() payload: any, @RpcId() id: string) {
+    return await this.queryService.find('count', id, payload);
+  }
 }
